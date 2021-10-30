@@ -1,0 +1,111 @@
+
+// CONEXCIONES
+//
+//
+// SENSOR DE GAS MQ 135 A2
+// RELE (13)
+// MOTOR (12)
+// SENSOR DE TEMPERATURA DHT 21 (15)
+// SENSOR DE TEMPERATURA DSX18 (14)
+//  
+//SE NECESITA DE UN INTERRUPTOR DIGITAL DE TRANSISTOR 
+//  Y placa raspberry pi pico con su respectivo json para ser programado en arduino y manejar sus dos nucleos<z
+
+
+
+
+#include <TroykaDHT.h>  // Zona de librerias
+
+
+DHT dht(15, DHT21);  // Declaracion de pin de sensor de humedad dht21
+int VALOR;      //  valor leido del sensor de gas mq-135
+int periodo = 10000; // variable encargada de calcular los mili segundos en ocho y 16 horas
+int periodo2 = 20000;// variable encargada de calcular los mili segundos en ocho y 16 horas
+unsigned long TiempoAhora = 0; // variable encargada de calcular los mili segundos del tiempo actual
+int MOTOR=12; // variable encargada de albergar el pin del motor
+int i;     // variable de suma for
+//---------------------------------------Declaracion de comunicaccion de bioreactor ----------------------------------------------------
+void setup()
+{
+  Serial.begin(9600); // inicia comunicacion serial
+  dht.begin(); // acciona el sensor de humedad DHT
+}
+
+//---------------------------------------Declaracion de comunicaccion de guerta----------------------------------------------------
+
+
+void setup1()
+{
+    Serial.begin(9600);
+    pinMode(13, OUTPUT); //modo salida al pin del control del  rele
+    pinMode(MOTOR, OUTPUT);//modo salida al pin del control del  motor de la bomba
+    analogWrite(MOTOR, 0); // escritura del motor listo
+}
+
+//-----------------------------------------Inicio de SENSADO debio reactor ------------------------------------------------------------------
+
+void loop()
+{
+  // .
+  delay(1000);                   // Espera 5 segundos
+  dht.read();
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+  Serial.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");// Imprime Espacio en el monitor
+  Serial.print("Temperature = " ); // Imprime indicador de temperatura
+  Serial.print(dht.getTemperatureC()); // Obtiene la entrada del sensor de temperatura
+  Serial.println(" C \t"); // Imprime indicador de temperatura
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+  Serial.println("---------------------------------------------------------------------------------------------------------------");// Imprime Espacio en el monitor
+  Serial.print("Humidity = "); // Imprime indicador de Humedad
+  Serial.print(dht.getHumidity());// Obtiene la entrada del sensor de Humedad
+  Serial.println(" %");
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+  Serial.println("---------------------------------------------------------------------------------------------------------------");// Imprime Espacio en el monitor
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+  VALOR = analogRead(A2); // declara su puerto analogico
+  Serial.print("Dioxido de carbono = "); // Imprime indicador de dioxido de carbono
+  Serial.println(VALOR); //Obtiene la entrada del sensor de gas 
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+  Serial.println("---------------------------------------------------------------------------------------------------------------");// Imprime Espacio en el monitor
+  Serial.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");// Imprime Espacio en el monitor
+  Serial.println("                                       "); // Imprime Espacio en el monitor
+
+//------------------------------------ zona de accion del motor de la guerta en el primer nucleo ya que el segundo esta sujeto a unciclo de cada ocho horas-------------------------
+  
+  
+  i = 225; // se fija la potencia antes escalada por un for a un valor estable que la bomba maneje
+  analogWrite(MOTOR, i);
+  Serial.println(i);
+  delay(500);
+ 
+  }
+  
+ //-----------------------------------------Inicio de Ciclo de cultivo hidrofonico ------------------------------------------------------------------
+
+void loop1()
+{
+    TiempoAhora = millis();
+     Serial.println("                                       "); // Imprime Espacio en el monitor
+     Serial.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");// Imprime Espacio en el monitor
+     digitalWrite(13, HIGH);   // Enciende el pin 13
+     Serial.println("La guerta se encuentra en estado inactivo"); //Mensaje del estado de luz de la guerta   ;
+     while(millis() < TiempoAhora+periodo){
+    // espere [periodo] milisegundos
+    }
+     Serial.println("                                       "); // Imprime Espacio en el monitor
+     Serial.println("---------------------------------------------------------------------------------------------------------------");// Imprime Espacio en el monitor
+     digitalWrite(13, LOW);   // Apaga el pin 13
+     Serial.println("La guerta se encuentra en estado activo"); //Mensaje del estado de luz de la guerta
+     Serial.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");// Imprime Espacio en el monitor
+     Serial.println("                                       "); // Imprime Espacio en el monitor
+     while(millis() < TiempoAhora+periodo2){
+    // espere [periodo] milisegundos
+  }
+
+}
+
+
+
+
+
+
